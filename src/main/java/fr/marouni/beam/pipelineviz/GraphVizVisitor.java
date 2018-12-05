@@ -32,24 +32,27 @@ public class GraphVizVisitor extends Pipeline.PipelineVisitor.Defaults {
     private Graph graph;
     private String graphOutputPath;
     private Set<BeamNode> beamNodeList;
+    private Format outputFormat;
 
     /**
      *
      * @param pipeline Beam pipeline
      * @param graphOutputPath Path to generated PNG output
      */
-    public GraphVizVisitor(Pipeline pipeline, String graphOutputPath){
+    public GraphVizVisitor(Pipeline pipeline, String graphOutputPath, Format outputFormat){
         graph = graph(pipeline.toString()).strict()
                 .graphAttr().with(RankDir.RIGHT_TO_LEFT);
         this.graphOutputPath = graphOutputPath;
         this.beamNodeList = new LinkedHashSet<>();
+        this.outputFormat = outputFormat;
+
         pipeline.traverseTopologically(this);
     }
 
     /**
      * Represents a Beam transform with a list of its direct parents
      */
-    static class BeamNode{
+    private static class BeamNode {
         String name;
         List<String> parents;
 
@@ -104,7 +107,9 @@ public class GraphVizVisitor extends Pipeline.PipelineVisitor.Defaults {
             }
         }
 
-        Graphviz.fromGraph(graph).render(Format.PNG).toFile(new File(graphOutputPath));
+        System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" + beamNodeList);
+
+        Graphviz.fromGraph(graph).render(outputFormat).toFile(new File(graphOutputPath));
     }
 
     /**
